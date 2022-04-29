@@ -258,6 +258,7 @@ public class AssetBundler
         }
 
         managedReferences.Add(unityAssembliesLocation + "UnityEngine");
+        managedReferences.Add(unityAssembliesLocation + "../UnityExtensions/Unity/GUISystem/UnityEngine.UI");
 
         //Next we need to grab some type references and use reflection to build things the way Unity does.
         //Note that EditorUtility.CompileCSharp will do *almost* exactly the same thing, but it unfortunately
@@ -436,6 +437,14 @@ public class AssetBundler
         //that Unity makes), so just copy that to the final output folder
         string srcPath = Path.Combine(TEMP_BUILD_FOLDER, BUNDLE_FILENAME);
         string destPath = Path.Combine(outputFolder, BUNDLE_FILENAME);
+        File.Copy(srcPath, destPath, true);
+
+        srcPath = Path.Combine(TEMP_BUILD_FOLDER, "btbicons.bundle");
+        destPath = Path.Combine(outputFolder, "btbicons.bundle");
+        File.Copy(srcPath, destPath, true);
+
+        srcPath = Path.Combine(TEMP_BUILD_FOLDER, "btbaudio.bundle");
+        destPath = Path.Combine(outputFolder, "btbaudio.bundle");
         File.Copy(srcPath, destPath, true);
     }
 
