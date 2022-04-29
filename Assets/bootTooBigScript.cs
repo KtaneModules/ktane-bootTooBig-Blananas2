@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using KModkit;
 
 public class bootTooBigScript : MonoBehaviour {
 
@@ -210,12 +208,17 @@ public class bootTooBigScript : MonoBehaviour {
             Debug.LogFormat("[Boot Too Big #{0}] Icon #{1}: {2}", moduleId, k+1, chosenModules[k]);
         }
 
-        ShowTheDamnIcons();
+        StartCoroutine(ShowTheDamnIcons());
     }
 
-    void ShowTheDamnIcons() {
+    IEnumerator ShowTheDamnIcons() {
+        if (!Application.isEditor)
+            yield return new WaitUntil(() => BTBLoader.sprites != null);
         for (int i = 0; i < 8; i++) {
-            Icons[i].sprite = Resources.Load<Sprite>(WaitASec(chosenModules[i]));
+            if (!Application.isEditor)
+                Icons[i].sprite = BTBLoader.sprites[Array.FindIndex(BTBLoader.sprites, s => s.name == WaitASec(chosenModules[i]))];
+            else
+                Icons[i].sprite = Resources.Load<Sprite>("Icons/" + WaitASec(chosenModules[i]));
         }
     }
 
@@ -240,7 +243,8 @@ public class bootTooBigScript : MonoBehaviour {
     void ButtonPress(KMSelectable button) {
         for (int l = 0; l < 8; l++) {
             if (button == Buttons[l]) {
-            Audio.PlaySoundAtTransform(SoundNum(chosenModules[l]), transform);
+                Buttons[l].AddInteractionPunch(0.5f);
+                Audio.PlaySoundAtTransform(SoundNum(chosenModules[l]), transform);
                 if (!moduleSolved) {
                     if (presses % 2 == 0) {
                         previous = chosenModules[l];
@@ -275,5 +279,72 @@ public class bootTooBigScript : MonoBehaviour {
         }
         Debug.Log("Sound clip failed: " + m);
         return "";
+    }
+
+    //twitch plays
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} <pos1> <pos2> [Presses the buttons in the specified two positions] | Valid button positions are TL, TM, ML, MM, MR, BL, BM, and BR";
+    #pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        if (!Application.isEditor)
+            yield return new WaitUntil(() => BTBLoader.audioClips != null);
+        string[] parameters = command.Split(' ');
+        if (parameters.Length == 2)
+        {
+            string[] btnPos = { "TL", "TM", "ML", "MM", "MR", "BL", "BM", "BR" };
+            for (int i = 0; i < 2; i++)
+            {
+                if (!btnPos.Contains(parameters[i].ToUpper()))
+                {
+                    yield return "sendtochaterror!f The specified position '" + parameters[i] + "' is invalid!";
+                    yield break;
+                }
+            }
+            yield return null;
+            int index = Array.IndexOf(btnPos, parameters[0].ToUpper());
+            Buttons[index].OnInteract();
+            float wait = Application.isEditor ? Resources.Load<AudioClip>("Audio/" + SoundNum(chosenModules[index])).length : BTBLoader.audioClips[Array.FindIndex(BTBLoader.audioClips, s => s.name == SoundNum(chosenModules[index]))].length;
+            yield return new WaitForSeconds(wait);
+            index = Array.IndexOf(btnPos, parameters[1].ToUpper());
+            Buttons[index].OnInteract();
+        }
+        else
+            yield return "sendtochaterror I need exactly two buttons to press!";
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        if (!Application.isEditor)
+            while (BTBLoader.audioClips == null) yield return true;
+        if (previous != "")
+        {
+            if (answers[0] != previous && answers[1] != previous)
+            {
+                GetComponent<KMBombModule>().HandlePass();
+                moduleSolved = true;
+                yield break;
+            }
+            else if (answers[0] == previous)
+            {
+                Buttons[chosenModules.IndexOf(answers[1])].OnInteract();
+                float wait = Application.isEditor ? Resources.Load<AudioClip>("Audio/" + SoundNum(answers[1])).length : BTBLoader.audioClips[Array.FindIndex(BTBLoader.audioClips, s => s.name == SoundNum(answers[1]))].length;
+                yield return new WaitForSeconds(wait);
+                yield break;
+            }
+            else
+            {
+                Buttons[chosenModules.IndexOf(answers[0])].OnInteract();
+                float wait = Application.isEditor ? Resources.Load<AudioClip>("Audio/" + SoundNum(answers[0])).length : BTBLoader.audioClips[Array.FindIndex(BTBLoader.audioClips, s => s.name == SoundNum(answers[0]))].length;
+                yield return new WaitForSeconds(wait);
+                yield break;
+            }
+        }
+        Buttons[chosenModules.IndexOf(answers[0])].OnInteract();
+        float wait2 = Application.isEditor ? Resources.Load<AudioClip>("Audio/" + SoundNum(answers[0])).length : BTBLoader.audioClips[Array.FindIndex(BTBLoader.audioClips, s => s.name == SoundNum(answers[0]))].length;
+        yield return new WaitForSeconds(wait2);
+        Buttons[chosenModules.IndexOf(answers[1])].OnInteract();
+        wait2 = Application.isEditor ? Resources.Load<AudioClip>("Audio/" + SoundNum(answers[1])).length : BTBLoader.audioClips[Array.FindIndex(BTBLoader.audioClips, s => s.name == SoundNum(answers[1]))].length;
+        yield return new WaitForSeconds(wait2);
     }
 }
