@@ -14,7 +14,9 @@ MonoBehaviour:
   id: bootTooBig
   title: Boot Too Big [REUPLOAD]
   author: Blananas2
-  description: 'Unsubscribe to the old version:'
+  description: "Reupload of a module by TheThirdMan.\r\nUnsubscribe to the old version:
+    https://steamcommunity.com/sharedfiles/filedetails/?id=1808308399\n\r\nModule
+    ID: bootTooBig\n\r\nThe manual can be found here: https://ktane.timwi.de/HTML/Boot%20Too%20Big.html"
   version: 
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: df8b644fd2aadae4e8f5106087d99cda, type: 3}
