@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Name: ModConfig
   m_EditorClassIdentifier: 
   id: bootTooBig
-  title: Boot Too Big [REUPLOAD]
+  title: Boot Too Big
   author: Blananas2
-  description: "Reupload of a module by TheThirdMan.\r\nUnsubscribe to the old version:
-    https://steamcommunity.com/sharedfiles/filedetails/?id=1808308399\n\r\nModule
+  description: "Reupload of a module originally developed by TheThirdMan.\nUnsubscribe
+    to the old version: https://steamcommunity.com/sharedfiles/filedetails/?id=1808308399\n\r\nModule
     ID: bootTooBig\n\r\nThe manual can be found here: https://ktane.timwi.de/HTML/Boot%20Too%20Big.html"
   version: 
   outputFolder: build
